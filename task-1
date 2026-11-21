@@ -1,1 +1,29 @@
+#include <stdio.h>
+#include <stdint.h>
 
+#define METER_MAX 65535U
+#define METER_MODULUS 65536U
+
+int main(void)
+{
+    uint32_t previous, current, units;
+
+    printf("Enter previous and current readings: ");
+    if (scanf("%" SCNu32 " %" SCNu32, &previous, &current) != 2 ||
+        previous > METER_MAX || current > METER_MAX) {
+        puts("Invalid readings.");
+        return 1;
+    }
+
+    if (current >= previous) {
+        units = current - previous;
+    } else if (previous >= 65000U && current <= 1000U) {
+        units = (METER_MODULUS - previous) + current;
+    } else {
+        puts("Invalid or unconfirmed rollover.");
+        return 1;
+    }
+
+    printf("Units consumed: %" PRIu32 "\n", units);
+    return 0;
+}
