@@ -1,1 +1,19 @@
+#include <stdio.h>
 
+int main(void)
+{
+    int whole_division = 199 / 100;
+    double decimal_division = (double)199 / 100;
+    float float_sum = 0.1f + 0.2f;
+
+    printf("199 / 100 as integers: %d\n", whole_division);
+    printf("199 / 100 as decimal: %.2f\n", decimal_division);
+    printf("0.1f + 0.2f: %.9f\n", float_sum);
+
+    /* Money should be stored in integer paise. */
+    int amount_paise = 16250;
+    printf("Amount: Rs. %d.%02d\n",
+           amount_paise / 100, amount_paise % 100);
+
+    return 0;
+}
