@@ -1,1 +1,78 @@
+#include <stdio.h>
+#include <stdint.h>
+#include <inttypes.h>
+#include <limits.h>
 
+#define MAX_INTERVALS 35040U
+#define DENOMINATOR 100000ULL
+
+int main(void)
+{
+    FILE *file = fopen("tariff.txt", "r");
+    unsigned long long rate, fixed;
+    unsigned int count;
+    uint64_t numerator = 0;
+
+    if (file == NULL) {
+        puts("Cannot open tariff.txt.");
+        return 1;
+    }
+
+    if (fscanf(file,
+               "base_rate_paise_per_kwh=%llu\n"
+               "fixed_charge_paise=%llu",
+               &rate, &fixed) != 2) {
+        puts("Invalid tariff configuration.");
+        fclose(file);
+        return 1;
+    }
+    fclose(file);
+
+    printf("Enter number of intervals (1-%u): ", MAX_INTERVALS);
+    if (scanf("%u", &count) != 1 ||
+        count == 0 || count > MAX_INTERVALS) {
+        puts("Invalid interval count.");
+        return 1;
+    }
+
+    for (unsigned int i = 0; i < count; i++) {
+        unsigned int hour, watt_hours;
+
+        printf("Enter hour (0-23) and energy (Wh): ");
+        if (scanf("%u %u", &hour, &watt_hours) != 2 ||
+            hour > 23 || watt_hours > 65535U) {
+            puts("Invalid interval data.");
+            return 1;
+        }
+
+        /* Peak period is 18:00 through 21:59, with a 20% increase. */
+        uint64_t multiplier = (hour >= 18 && hour < 22) ? 120 : 100;
+        uint64_t addition =
+            (uint64_t)watt_hours * rate * multiplier;
+
+        if (UINT64_MAX - numerator < addition) {
+            puts("Energy calculation overflow.");
+            return 1;
+        }
+        numerator += addition;
+    }
+
+    /* Round once to the nearest paise. */
+    uint64_t energy = (numerator + DENOMINATOR / 2) / DENOMINATOR;
+
+    if (UINT64_MAX - energy < fixed) {
+        puts("Total calculation overflow.");
+        return 1;
+    }
+
+    uint64_t total = energy + fixed;
+
+    printf("Energy charge: Rs. %" PRIu64 ".%02" PRIu64 "\n",
+           energy / 100, energy % 100);
+    printf("Fixed charge: Rs. %" PRIu64 ".%02" PRIu64 "\n",
+           fixed / 100, fixed % 100);
+    printf("Total bill: Rs. %" PRIu64 ".%02" PRIu64 "\n",
+           total / 100, total % 100);
+
+    return 0;
+}
