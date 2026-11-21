@@ -1,1 +1,37 @@
+#include <stdio.h>
+#include "billing.h"
 
+uint64_t compute_bill(uint32_t units)
+{
+    uint64_t energy = 0;
+
+    if (units > SLAB1_UNITS) {
+        uint32_t slab2 = units < SLAB2_UNITS
+                       ? units - SLAB1_UNITS
+                       : SLAB2_UNITS - SLAB1_UNITS;
+        energy += (uint64_t)slab2 * RATE2_PAISE;
+    }
+
+    if (units > SLAB2_UNITS) {
+        energy += (uint64_t)(units - SLAB2_UNITS) * RATE3_PAISE;
+    }
+
+    return energy + FIXED_PAISE;
+}
+
+int main(void)
+{
+    uint32_t units = 150;
+    uint64_t total = compute_bill(units);
+
+#ifdef DEBUG
+    printf("[DEBUG] units=%u total_paise=%llu\n",
+           units, (unsigned long long)total);
+#endif
+
+    printf("Total bill: Rs. %llu.%02llu\n",
+           (unsigned long long)(total / 100),
+           (unsigned long long)(total % 100));
+
+    return 0;
+}
