@@ -1,1 +1,4 @@
-
+gcc -E billing.c -o billing.i
+gcc -S billing.c -o billing.s
+gcc -c billing.c -o billing.o
+gcc billing.o -o billing
