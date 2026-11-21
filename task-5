@@ -1,1 +1,14 @@
+#ifndef BILLING_H
+#define BILLING_H
 
+#include <stdint.h>
+
+#define SLAB1_UNITS 100U
+#define SLAB2_UNITS 200U
+#define RATE2_PAISE 225ULL
+#define RATE3_PAISE 450ULL
+#define FIXED_PAISE 5000ULL
+
+uint64_t compute_bill(uint32_t units);
+
+#endif
