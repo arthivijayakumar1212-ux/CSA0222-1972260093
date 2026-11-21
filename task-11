@@ -1,1 +1,31 @@
+#include <stdio.h>
+#include <stdint.h>
 
+static uint64_t calculate_bill(uint32_t units)
+{
+    uint64_t energy_paise = 0;
+
+    if (units > 100) {
+        uint32_t units_at_225 = units < 200 ? units - 100 : 100;
+        energy_paise += (uint64_t)units_at_225 * 225;
+    }
+
+    if (units > 200) {
+        energy_paise += (uint64_t)(units - 200) * 450;
+    }
+
+    return energy_paise + 5000; /* fixed charge: ₹50 */
+}
+
+int main(void)
+{
+    uint32_t units = 350;
+    uint64_t total = calculate_bill(units);
+
+    printf("Units: %u\n", units);
+    printf("Total bill: Rs. %llu.%02llu\n",
+           (unsigned long long)(total / 100),
+           (unsigned long long)(total % 100));
+
+    return 0;
+}
