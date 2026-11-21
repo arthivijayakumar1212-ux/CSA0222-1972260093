@@ -1,1 +1,36 @@
+#include <stdio.h>
+#include <stdint.h>
 
+#define SLAB1_UNITS 100U
+#define SLAB2_UNITS 200U
+#define RATE2_PAISE 225ULL
+#define RATE3_PAISE 450ULL
+#define FIXED_PAISE 5000ULL
+
+int main(void)
+{
+    uint32_t units = 150;
+    uint64_t energy = 0;
+
+    if (units > SLAB1_UNITS) {
+        uint32_t slab2 = units < SLAB2_UNITS
+                       ? units - SLAB1_UNITS
+                       : SLAB2_UNITS - SLAB1_UNITS;
+        energy += (uint64_t)slab2 * RATE2_PAISE;
+    }
+
+    if (units > SLAB2_UNITS) {
+        energy += (uint64_t)(units - SLAB2_UNITS) * RATE3_PAISE;
+    }
+
+    uint64_t total = energy + FIXED_PAISE;
+
+    printf("Energy charge: Rs. %llu.%02llu\n",
+           (unsigned long long)(energy / 100),
+           (unsigned long long)(energy % 100));
+    printf("Total bill: Rs. %llu.%02llu\n",
+           (unsigned long long)(total / 100),
+           (unsigned long long)(total % 100));
+
+    return 0;
+}
