@@ -1,1 +1,71 @@
+#include <stdio.h>
+#include <stdint.h>
+#include <inttypes.h>
 
+#define METER_MAX 65535U
+#define METER_MODULUS 65536U
+#define SLAB1 100U
+#define SLAB2 200U
+#define RATE2_PAISE 225ULL
+#define RATE3_PAISE 450ULL
+#define FIXED_PAISE 5000ULL
+
+static uint32_t calculate_units(uint32_t previous, uint32_t current)
+{
+    if (current >= previous) {
+        return current - previous;
+    }
+
+    return (METER_MODULUS - previous) + current;
+}
+
+static uint64_t calculate_total(uint32_t units)
+{
+    uint64_t energy = 0;
+
+    if (units > SLAB1) {
+        uint32_t slab2 = units < SLAB2
+                       ? units - SLAB1
+                       : SLAB2 - SLAB1;
+        energy += (uint64_t)slab2 * RATE2_PAISE;
+    }
+
+    if (units > SLAB2) {
+        energy += (uint64_t)(units - SLAB2) * RATE3_PAISE;
+    }
+
+    return energy + FIXED_PAISE;
+}
+
+int main(void)
+{
+    unsigned int previous, current;
+    uint32_t units;
+    uint64_t total, energy;
+
+    printf("Enter previous and current readings (0-65535): ");
+    if (scanf("%u %u", &previous, &current) != 2 ||
+        previous > METER_MAX || current > METER_MAX) {
+        puts("Invalid readings.");
+        return 1;
+    }
+
+    if (current < previous &&
+        (previous < 65000U || current > 1000U)) {
+        puts("Invalid or unconfirmed rollover.");
+        return 1;
+    }
+
+    units = calculate_units(previous, current);
+    total = calculate_total(units);
+    energy = total - FIXED_PAISE;
+
+    printf("Units consumed: %" PRIu32 "\n", units);
+    printf("Energy charge: Rs. %" PRIu64 ".%02" PRIu64 "\n",
+           energy / 100, energy % 100);
+    printf("Fixed charge: Rs. 50.00\n");
+    printf("Total bill: Rs. %" PRIu64 ".%02" PRIu64 "\n",
+           total / 100, total % 100);
+
+    return 0;
+}
