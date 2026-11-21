@@ -1,1 +1,15 @@
+#include <stdio.h>
+#include <stdint.h>
+#include <inttypes.h>
 
+int main(void)
+{
+    uint64_t household_count = 800000;
+    uint64_t bill_paise = 16250;
+    uint64_t total_paise = household_count * bill_paise;
+
+    printf("Total for %" PRIu64 " households: Rs. %" PRIu64 ".%02" PRIu64 "\n",
+           household_count, total_paise / 100, total_paise % 100);
+
+    return 0;
+}
